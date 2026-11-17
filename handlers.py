@@ -26,7 +26,6 @@ async def send_alert(user_id, text):
         text=f"{text}"
     )
 
-
 @rt_handler.message(CommandStart())
 async def stast_bot(message: Message, repo: Repo):
     if message.from_user is not None:
