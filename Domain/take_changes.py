@@ -26,6 +26,8 @@ class Changes:
                         msg = await stream.recv()
                         
                         data = msg['data'] if 'data' in msg else msg
+                        if 'k' not in data:
+                            continue
                         candle = data['k']
                         
                         if candle['x']:
