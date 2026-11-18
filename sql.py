@@ -13,11 +13,19 @@ class Repo:
     
     def isUserExist(self, tg_id) -> bool:
         with connection.cursor() as cursor:
-            cursor.execute("""SELECT tg_id FROM users WHERE tg_id = %s""", (tg_id,))
-            id = cursor.fetchall()
-            if id[0] is not None:
+            try:
+                cursor.execute("""SELECT tg_id FROM users WHERE tg_id = %s""", (tg_id,))
+                id = cursor.fetchall()
+                print(id)
+                print(id[0])
+                if id[0] is None:
+                    print('f')
+                    return False
+                print('t')
                 return True
-            return False
+            except IndexError:
+                return False
+            
     
     def addUser(self, tg_id: int):
         with connection.cursor() as cursor:
@@ -30,9 +38,8 @@ class Repo:
             tg_id_all_users = cursor.fetchall()
             list_og_tgid = []
             print(tg_id_all_users)
-            for j in range(len(tg_id_all_users)):
-                for i in tg_id_all_users:
-                    list_og_tgid.append(i[j])
+            for i in tg_id_all_users:
+                list_og_tgid.append(i[0])
             
             print(list_og_tgid)
             return list_og_tgid

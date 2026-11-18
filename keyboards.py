@@ -1,5 +1,18 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardButton, InlineKeyboardMarkup
 
+def menu() -> ReplyKeyboardMarkup:
+    
+    menu = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text='Таймер')],
+            [KeyboardButton(text='Настройка бирж')], 
+            [KeyboardButton(text='Настройка алертов')]
+        ],
+        one_time_keyboard=True, resize_keyboard=True
+    )
+    
+    return menu
+
 def turn_timer() -> InlineKeyboardMarkup:
     
     turn = InlineKeyboardMarkup(

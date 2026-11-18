@@ -24,8 +24,17 @@ async def main():
     dp['repo'] = Repo()
     ch = Changes()
     dp.include_router(rt_handler)
-    await ch.send_changes()
-    print('дошёл до конца main')
-    await dp.start_polling(bot)
+    take_task = asyncio.create_task(ch.create_groups())
+
+    try:
+        await dp.start_polling(bot)
+
+    finally:
+        take_task.cancel()
+
+        try:
+            await take_task
+        except asyncio.CancelledError:
+            pass
 
 asyncio.run(main())
