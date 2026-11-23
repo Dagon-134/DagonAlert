@@ -4,6 +4,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, CommandStart
 
+from Domain.volatility import Volatility
+
 from keyboards import turn_timer, menu
 
 from sql import Repo
@@ -36,7 +38,6 @@ async def stast_bot(message: Message, repo: Repo):
         answer = repo.isUserExist(tg_id)
         if answer == False:
             repo.addUser(tg_id)
-            print(tg_id)
             
 #Меню
 @rt_handler.message(Command('menu'))
@@ -44,10 +45,12 @@ async def main_menu(message: Message):
     await message.answer(text='⚙️Вы находитесь в основном меню бота, здесь можете настройть то, что вам хочется⚙️',
                          reply_markup=menu())
     
+    
 #Инструкция
 @rt_handler.message(Command('instructions'))
 async def instructions(message: Message):
     await message.answer(text='Интсрукция')
+    
 
 #Таймер
 @rt_handler.message(F.text == 'Таймер')
@@ -56,10 +59,26 @@ async def timer(message: Message):
                          reply_markup=turn_timer())
     
 @rt_handler.callback_query(F.data == 'turnOn')
-async def turn_on_timer(callback: CallbackQuery):
+async def turn_on_timer(callback: CallbackQuery, repo: Repo):
     await callback.answer(text=f'Таймер успешно подключён.\n\nЕсли хотите отключить зайдите обратно в Таймер и там отключите')
+    tg_id = callback.from_user.id
+    print(tg_id)
+    new_cust = True
+    repo.changeTimerImformation(new_cust, tg_id)
     
 @rt_handler.callback_query(F.data == 'turnOff')
-async def turn_off_timer(callback: CallbackQuery):
+async def turn_off_timer(callback: CallbackQuery, repo: Repo):
     await callback.answer(text=f'Таймер успешно отключён.\n\nЕсли хотите отключить зайдите обратно в Таймер и там подключить')
+    tg_id = callback.from_user.id
+    print(tg_id)
+    new_cust = False
+    repo.changeTimerImformation(new_cust, tg_id)
     
+    
+@rt_handler.message(Command('get_volatility'))
+async def get_volatility(message: Message, get_vol : Volatility):
+    print('начал')
+    m = await message.answer(text='Подождите пару секунд...')
+    answer = await get_vol.get_top_volatility()
+    await m.delete()
+    await message.answer(text=f'💎ТОП 10 волатильных монет за 15 минут:\n\n{"\n".join(f"{item['symbol']}: {item['atr_percent']}" for item in answer)}')

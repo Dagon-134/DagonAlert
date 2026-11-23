@@ -8,7 +8,7 @@ from sql import Repo
 
 from handlers import send_alert
 
-ALERT_THRESHOLD = 1.5
+ALERT_THRESHOLD = 2.0
 
 class Changes:
     
@@ -19,10 +19,12 @@ class Changes:
             bm = BinanceSocketManager(client, max_queue_size=2000)
             
             socket = bm.futures_multiplex_socket(group)
+            if socket is None: 
+                pass
             
             async with socket as stream:
-                try:
-                    while True:
+                while True:
+                    try:
                         msg = await stream.recv()
                         
                         data = msg['data'] if 'data' in msg else msg
@@ -39,19 +41,19 @@ class Changes:
                             if abs(change_percent) >= ALERT_THRESHOLD:
                                 try:
                                     if change_percent > 0:
-                                        answer = (f"🚨 {data['s']} на {change_percent:.2f}% за минуту!\n📈Цена: {close_price}")
+                                        answer = (f"🚨 {data['s']} на +{change_percent:.2f}% за минуту!\n📈Цена: {close_price}")
                                     else:
                                         answer = (f"🚨 {data['s']} на {change_percent:.2f}% за минуту!\n📉Цена: {close_price}")
                                     for id in list:
                                         await send_alert(id, answer)
                                 except TelegramForbiddenError:
                                     pass
-                except Exception as e:
-                    answer = '👀Что-то пошло не так, перезагрузите бота.\n\n❕Если ничего не заработает обратитесь в поддержку❕'
-                    print(f'Ошибка:{e}')
-                    for id in list:
-                        await send_alert(id, answer)
-                        
+                    except Exception as e:
+                        answer = '👀Что-то пошло не так, перезагрузите бота.\n\n❕Если ничего не заработает обратитесь в поддержку❕'
+                        print(f'Ошибка:{e}')
+                        for id in list:
+                            await send_alert(id, answer)
+                                
         finally:
             await client.close_connection()
             
@@ -61,9 +63,8 @@ class Changes:
             yield list[i:i + size]
             
             
-    async def create_groups(self):
+    async def create_groups(self, repo: Repo):
             client = await AsyncClient.create()
-            repo = Repo()
             print('дошёл')
             list_of_id = repo.getTgId()
             print(list_of_id)
