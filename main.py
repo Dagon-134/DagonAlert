@@ -14,6 +14,18 @@ import os
 
 from handlers import rt_handler
 
+from binance_common.configuration import ConfigurationRestAPI
+from binance_common.constants import DERIVATIVES_TRADING_USDS_FUTURES_REST_API_PROD_URL
+from binance_sdk_derivatives_trading_usds_futures.derivatives_trading_usds_futures import DerivativesTradingUsdsFutures
+
+config = ConfigurationRestAPI(
+    api_key="",
+    api_secret="",
+    base_path=DERIVATIVES_TRADING_USDS_FUTURES_REST_API_PROD_URL,
+)
+
+from src.domain.get_coins import GetCoins
+
 import asyncio
 
 load_dotenv()
@@ -26,8 +38,12 @@ bot = Bot(token=bot_url)
 dp = Dispatcher()
 
 async def main():
+    client = DerivativesTradingUsdsFutures(
+        config_rest_api=config
+    )
     connect = os.getenv('TABLE')
     dp['repo'] = Repo(connect)
+    dp['gtcoin'] = GetCoins(client)
     client = await AsyncClient.create()
     dp['get_vol'] = Volatility(client) 
     ch = Changes()
