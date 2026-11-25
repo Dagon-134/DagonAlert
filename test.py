@@ -1,16 +1,11 @@
 import asyncio
-from websockets.asyncio.server import serve
+import websockets
 
+async def test():
+    async with websockets.connect(
+        'wss://fstream.binance.com/market/ws/btcusdt@kline_1m'
+    ) as ws:
+        async for message in ws:
+            print(message)
 
-async def echo(websocket):
-    async for message in websocket:
-        await websocket.send(message)
-
-
-async def main():
-    server = await serve(echo, "localhost", 8765)
-    await server.serve_forever()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+asyncio.run(test())

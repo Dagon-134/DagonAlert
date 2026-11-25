@@ -4,8 +4,6 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, CommandStart
 
-from Domain.volatility import Volatility
-
 from keyboards import turn_timer, menu
 
 from sql import Repo
@@ -76,9 +74,6 @@ async def turn_off_timer(callback: CallbackQuery, repo: Repo):
     
     
 @rt_handler.message(Command('get_volatility'))
-async def get_volatility(message: Message, get_vol : Volatility):
+async def get_volatility(message: Message):
     print('начал')
     m = await message.answer(text='Подождите пару секунд...')
-    answer = await get_vol.get_top_volatility()
-    await m.delete()
-    await message.answer(text=f'💎ТОП 10 волатильных монет за 15 минут:\n\n{"\n".join(f"{item['symbol']}: {item['atr_percent']}" for item in answer)}')
