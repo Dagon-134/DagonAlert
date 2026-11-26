@@ -21,11 +21,13 @@ if bot_url is None:
 bot = Bot(token=bot_url)
 
 #Функция для отправки каких либо сообщений всем пользователям
-async def send_alert(user_id, text):
-    await bot.send_message(
-        chat_id=user_id,
-        text=f"{text}"
-    )
+async def send_alert(text, repo: Repo):
+    list_of_tgid = repo.getTgId()
+    for user_id in list_of_tgid:
+        await bot.send_message(
+            chat_id=user_id,
+            text=f"{text}"
+        )
 
 #Старт
 @rt_handler.message(CommandStart())

@@ -1,5 +1,3 @@
-from pydoc import cli
-
 from aiogram import Bot, Dispatcher
 
 from sql import Repo
@@ -20,6 +18,7 @@ config = ConfigurationRestAPI(
 )
 
 from src.domain.get_coins import GetCoins
+from handlers import send_alert
 
 import asyncio
 
@@ -32,6 +31,9 @@ bot = Bot(token=bot_url)
 
 dp = Dispatcher()
 
+async def alert_callback(text):
+    await send_alert(text, dp['repo'])
+
 async def main():
     client = DerivativesTradingUsdsFutures(
         config_rest_api=config
@@ -41,8 +43,18 @@ async def main():
     print('дошёл')
     get_coins = GetCoins(client)
     print('начал')
-    await get_coins.get_coins()
     dp.include_router(rt_handler)
-    await dp.start_polling(bot)
+    take_task = asyncio.create_task(get_coins.get_coins(on_signal=alert_callback))
+
+    try:
+        await dp.start_polling(bot)
+
+    finally:
+        take_task.cancel()
+
+        try:
+            await take_task
+        except asyncio.CancelledError:
+            pass
 
 asyncio.run(main())

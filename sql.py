@@ -43,7 +43,6 @@ class Repo:
             for i in tg_id_all_users:
                 list_og_tgid.append(i[0])
             
-            print(list_og_tgid)
             return list_og_tgid
         
     def getTimerInformation(self, tg_id: int):

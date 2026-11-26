@@ -9,7 +9,7 @@ class CheckingCoins_1m:
         for i in range(0, len(list), size):
             yield list[i:i + size]
     
-    async def checking(self, coins):
+    async def checking(self, coins, on_signal):
         print('Начинаю проверять монеты')
         
         async with websockets.connect('wss://fstream.binance.com/market/stream') as ws:
@@ -36,8 +36,12 @@ class CheckingCoins_1m:
                     res = ((close_price - open_price) / open_price) * 100
                     
                     if res >= PERCENT_FOR_ALERT:
-                        print(f"монета {message["data"]["s"]} выросла на {res:.2f}%")
+                        print(f"🟢{message["data"]["s"]} выросла на {res:.2f}% за 1 минуту")
+                        signal = f"🟢{message["data"]["s"]} выросла на {res:.2f}% за 1 минуту\n📈Цена: {message['data']['k']['c']}"
+                        await on_signal(signal)
                         
                     elif res <= -PERCENT_FOR_ALERT:
-                        print(f"монета {message["data"]["s"]} упала на {res:.2f}%")
+                        print(f"🔴{message["data"]["s"]} упала на {res:.2f}% за 1 минуту")
+                        signal = f"🔴{message["data"]["s"]} упала на {res:.2f}% за 1 минуту\n📉Цена: {message['data']['k']['c']}"
+                        await on_signal(signal)
         
