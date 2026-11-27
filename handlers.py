@@ -5,6 +5,9 @@ from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, CommandStart
 
 from keyboards import turn_timer, menu
+from src.domain.get_top_high_low_coins_24h import TopHighLow
+
+import logging
 
 from sql import Repo
 
@@ -21,12 +24,13 @@ if bot_url is None:
 bot = Bot(token=bot_url)
 
 #Функция для отправки каких либо сообщений всем пользователям
-async def send_alert(text, repo: Repo):
+async def send_alert(alert, repo: Repo):
     list_of_tgid = repo.getTgId()
     for user_id in list_of_tgid:
         await bot.send_message(
             chat_id=user_id,
-            text=f"{text}"
+            text=alert,
+            parse_mode="MarkdownV2"
         )
 
 #Старт
@@ -62,7 +66,7 @@ async def timer(message: Message):
 async def turn_on_timer(callback: CallbackQuery, repo: Repo):
     await callback.answer(text=f'Таймер успешно подключён.\n\nЕсли хотите отключить зайдите обратно в Таймер и там отключите')
     tg_id = callback.from_user.id
-    print(tg_id)
+    logging.info(tg_id)
     new_cust = True
     repo.changeTimerImformation(new_cust, tg_id)
     
@@ -70,12 +74,19 @@ async def turn_on_timer(callback: CallbackQuery, repo: Repo):
 async def turn_off_timer(callback: CallbackQuery, repo: Repo):
     await callback.answer(text=f'Таймер успешно отключён.\n\nЕсли хотите отключить зайдите обратно в Таймер и там подключить')
     tg_id = callback.from_user.id
-    print(tg_id)
+    logging.info(tg_id)
     new_cust = False
     repo.changeTimerImformation(new_cust, tg_id)
     
     
 @rt_handler.message(Command('get_volatility'))
 async def get_volatility(message: Message):
-    print('начал')
+
     m = await message.answer(text='Подождите пару секунд...')
+    
+
+###
+@rt_handler.message(F.text == 'Топ 10 роста и падения')
+async def get_top_high_low(message: Message, top: TopHighLow):
+    answer = top.get_top()
+    await message.answer(f'{answer}')

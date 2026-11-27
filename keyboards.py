@@ -6,7 +6,8 @@ def menu() -> ReplyKeyboardMarkup:
         keyboard=[
             [KeyboardButton(text='Таймер')],
             [KeyboardButton(text='Настройка бирж')], 
-            [KeyboardButton(text='Настройка алертов')]
+            [KeyboardButton(text='Настройка алертов')],
+            [KeyboardButton(text='Топ 10 роста и падения')]
         ],
         one_time_keyboard=True, resize_keyboard=True
     )

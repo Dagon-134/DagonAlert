@@ -1,4 +1,5 @@
 import psycopg
+import logging
 
 
 class Repo:
@@ -23,9 +24,7 @@ class Repo:
     def addUser(self, tg_id: int):
         with self.connect.cursor() as cursor:
             cursor.execute("""INSERT INTO users(tg_id) VALUES(%s)""", (tg_id,))
-            print('kom')
             self.connect.commit()
-            print('kom1')
             cursor.execute("""SELECT user_id FROM users WHERE tg_id = %s""", (tg_id,))
             user_id = cursor.fetchall()
             if user_id[0] is None:
@@ -58,7 +57,6 @@ class Repo:
         with self.connect.cursor() as cursor:
             cursor.execute("""SELECT user_id FROM users WHERE tg_id = %s""", (tg_id,))
             user_id = cursor.fetchall()
-            print(user_id[0][0])
             if user_id[0] is None:
                 pass
             with self.connect.cursor() as cursor2:
